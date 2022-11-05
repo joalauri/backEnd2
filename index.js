@@ -1,13 +1,15 @@
+/* It's importing the fs module. */
 const fs = require("fs");
+const { randomUUID } = require("crypto");
 
-//Creacion de la clase contenedor:
+/* It's a class that allows you to save, get, delete, and get a random object from a JSON file. */
 class Contenedor {
   #contenido;
   #ruta;
   #getingID;
   //Declarando método constructor
   constructor(ruta) {
-    this.#contenido = [];
+    this.#contenido = fs.readFileSync("./elementos.txt","utf-8").length ? JSON.parse(fs.readFileSync("./elementos.txt","utf-8")) : [];
     this.#ruta = ruta;
     this.#getingID = null;
   }
@@ -24,9 +26,6 @@ class Contenedor {
       }
     });
     return this.#getingID;
-    //segunda opción no se cuál es mas conveniente.
-    // const idFind = await this.#contenido.find(o => o.id === n)
-    // return idFind
   }
   //metodo: para traer todos los datos almacenados. Correcto
   async getAll() {
@@ -48,6 +47,14 @@ class Contenedor {
     });
     await fs.promises.writeFile(this.#ruta, JSON.stringify(this.#contenido));
   }
+  async updateById(newObject){
+    this.#contenido = this.#contenido.map((content) => (
+      content.id === newObject.id ? newObject : content
+    ))
+    await fs.promises.writeFile(this.#ruta, JSON.stringify(this.#contenido));
+  }
+  
+
   //metodo: para eliminar todo los objetos. Correcto
   async deleteAll() {
     while (this.#contenido.length >= 1) {
@@ -57,7 +64,7 @@ class Contenedor {
   }
   async randomId() {
     let eventosPosibles = this.#contenido.length;
-   
+
     let azar = 0;
     while (azar < 1) {
       azar = Math.round(eventosPosibles * Math.random());
@@ -66,42 +73,49 @@ class Contenedor {
     return objetoAzar;
   }
 }
+/**
+ * It creates a new file called "elementos.txt" and writes "[]" to it. Then it creates a new Contenedor
+ * object, and saves 5 objects to it.
+ * returns a promise that resolves to the value returned by the function.
+ */
 async function test() {
   const rutaArchivo = "./elementos.txt";
-  await fs.promises.writeFile(rutaArchivo, "[]");
+  // await fs.promises.writeFile(rutaArchivo, "[]");
   const nuevoContenedor = new Contenedor(rutaArchivo);
-  await nuevoContenedor.save({
-    id: 1,
-    title: "El numero Uno",
-    price: 100,
-    thumbnail: "www.imagen1.com",
-  });
-  await nuevoContenedor.save({
-    id: 2,
-    title: "El numero Dos",
-    price: 150,
-    thumbnail: "www.imagen2.com",
-  });
-  await nuevoContenedor.save({
-    id: 3,
-    title: "El numero Tres",
-    price: 200,
-    thumbnail: "www.imagen3.com",
-  });
-  await nuevoContenedor.save({
-    id: 4,
-    title: "El numero Cuatro",
-    price: 200,
-    thumbnail: "www.imagen4.com",
-  });
-  await nuevoContenedor.save({
-    id: 5,
-    title: "El numero Cinco",
-    price: 200,
-    thumbnail: "www.imagen5.com",
-  });
-  
-    return nuevoContenedor;
+ 
+  // await nuevoContenedor.save({
+  //   id: "1",
+  //   title: "El numero Uno",
+  //   price: 100,
+  //   thumbnail: "www.imagen1.com",
+  // });
+  // await nuevoContenedor.save({
+  //   id: "2",
+  //   title: "El numero Dos",
+  //   price: 150,
+  //   thumbnail: "www.imagen2.com",
+  // });
+  // await nuevoContenedor.save({
+  //   id: "3",
+  //   title: "El numero Tres",
+  //   price: 200,
+  //   thumbnail: "www.imagen3.com",
+  // });
+  // await nuevoContenedor.save({
+  //   id: "4",
+  //   title: "El numero Cuatro",
+  //   price: 200,
+  //   thumbnail: "www.imagen4.com",
+  // });
+  // await nuevoContenedor.save({
+  //   id: "5",
+  //   title: "El numero Cinco",
+  //   price: 200,
+  //   thumbnail: "www.imagen5.com",
+  // });
+
+  return nuevoContenedor;
 }
 
-module.exports = {test}
+module.exports = { test };
+
